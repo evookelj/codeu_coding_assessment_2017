@@ -66,6 +66,21 @@ final class TestMain {
       }
     });
 
+    tests.add("Object Value with String and Object Values", new Test() {
+      @Override
+      public void run(JSONFactory factory) throws Exception {
+        final JSONParser parser = factory.parser();
+        final JSON obj = parser.parse("{\"name\":{ \"first\":\"sam\", \"last\":{\"maternal\":\"doe\", \"paternal\":\"smith\" } } }");
+
+        final JSON lastNameObj = obj.getObject("name").getObject("last");
+
+        Asserts.isNotNull(lastNameObj);
+        Asserts.isEqual("doe", lastNameObj.getString("maternal"));
+        Asserts.isEqual("smith", lastNameObj.getString("paternal"));
+
+      }
+    });
+
     tests.run(new JSONFactory(){
       @Override
       public JSONParser parser() {

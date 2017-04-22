@@ -25,7 +25,6 @@ final class MyJSONParser implements JSONParser {
   public JSON parse(String in) throws IOException {
 
   	JSON retJson = new MyJSON();
-  	//System.out.println("in: " + in);
 
   	//determine whether object has multiple items
   	int comma_pos = in.indexOf(",");
@@ -48,12 +47,12 @@ final class MyJSONParser implements JSONParser {
 	  	//if even # quotes, comma is being used to separate 
 	  	//if even open/close <=1, can be sure code isn't separating value
 	  	if (quote_ctr%2==0 && open_ctr-close_ctr<=1) {
-	  		String[] objs = in.split(",");
-	  		for (String obj: objs) { //for each object
+	  		String[] objs = in.split(",",2);
+	  		for (String obj: objs) { //for
 
 	  			//add necessary missing brackets for parsing
-	  			if (obj.indexOf("{")==-1) { obj = "{" + obj; } 
-	  			if (obj.indexOf("}")==-1) { obj += "}"; }
+	  			if (in.indexOf("\\{")==-1 || close_ctr>=open_ctr) { obj = "{" + obj; } 
+	  			else if (in.indexOf("\\}")==-1 || open_ctr >= close_ctr) { obj += "}"; }
 
 	  			JSON obj_json = parse(obj); //parse results for this obj
 
