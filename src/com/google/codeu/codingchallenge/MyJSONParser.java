@@ -32,8 +32,9 @@ final class MyJSONParser implements JSONParser {
   public JSON parse(String in) throws IOException {
 
     //====STEP 0: Check for invalid str before running algo====
-    for (int i=0; i<in.length(); i++) {
-      if (in.charAt(i)=='\\' && (!(in.charAt(i+1)=='t' || in.charAt(i+1)=='n'))) {
+    for (int i=0; i<in.length()-1; i++) {
+      if ((in.charAt(i)=='\\' && (!(in.charAt(i+1)=='t' || in.charAt(i+1)=='n'))) || //invalud escape chr
+          (in.charAt(i)=='\"' && in.charAt(i+1)=='\"')) { //non-escaped quote
         throw new IOException();
       }
     }

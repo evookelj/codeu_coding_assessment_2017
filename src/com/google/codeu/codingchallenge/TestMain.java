@@ -22,7 +22,7 @@ final class TestMain {
   public static void main(String[] args) {
 
     final Tester tests = new Tester();
-    System.out.println("\nNote: Tests including \"invalid\" should fail with IOException.");
+    System.out.println("\nNote: Tests including \"INVALID\" should FAIL with IOException.");
 
     tests.add("Empty Object", new Test() {
       @Override
