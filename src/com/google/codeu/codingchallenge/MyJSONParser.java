@@ -19,14 +19,27 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
+/*Outline of parsing algorithm
+0. If invalid parametere, throw exception. Otherwise continue
+1. If comma in param and comma separates object pieces, parse individual objs and add
+2. (Definitely dealing with a single object) Separate name and value
+3. Determine whether val is STRING (just add) or OBJ (parse obj, add parsed obj)
+*/
+
 final class MyJSONParser implements JSONParser {
 
   @Override
   public JSON parse(String in) throws IOException {
 
-  	JSON retJson = new MyJSON();
+    //====STEP 0: Check for invalid str before running algo====
+    for (int i=0; i<in.length(); i++) {
+      if (in.charAt(i)=='\\' && (!(in.charAt(i+1)=='t' || in.charAt(i+1)=='n'))) {
+        throw new IOException();
+      }
+    }
 
-  	//determine whether object has multiple items
+    JSON retJson = new MyJSON();
+  	//====STEP 1: determine whether object has multiple items====
   	int comma_pos = in.indexOf(",");
   	int quote_ctr = 0;
   	int open_ctr = 0;
@@ -34,9 +47,9 @@ final class MyJSONParser implements JSONParser {
   	if (comma_pos != -1) {
   		for (int i=0; i<in.substring(0,comma_pos).length(); i++) {
   			if (in.charAt(i)=='\"') { //if char is quote
-  				if (i>0 && in.charAt(i-1)!='\\') { //and isn't escaped before
+  				//if (i>0 && in.charAt(i-1)!='\\') { //and isn't escaped before
   					quote_ctr++; //add to quote counter
-  				}
+  				//}
   			} else if (in.charAt(i)=='{') { 
   				open_ctr++; 
   			} else if (in.charAt(i)=='}') {
@@ -51,8 +64,8 @@ final class MyJSONParser implements JSONParser {
 	  		for (String obj: objs) { //for
 
 	  			//add necessary missing brackets for parsing
-	  			if (in.indexOf("\\{")==-1 || close_ctr>=open_ctr) { obj = "{" + obj; } 
-	  			else if (in.indexOf("\\}")==-1 || open_ctr >= close_ctr) { obj += "}"; }
+	  			if (in.indexOf("\\{")==-1 || close_ctr>open_ctr) { obj = "{" + obj; } 
+	  			else if (in.indexOf("\\}")==-1 || open_ctr>close_ctr) { obj += "}"; }
 
 	  			JSON obj_json = parse(obj); //parse results for this obj
 
@@ -75,23 +88,22 @@ final class MyJSONParser implements JSONParser {
 	  		return retJson;
 	  	}
 	}
-  	//just looking at one object
+
+    //====STEP 2: Separate name and value====
     String[] components = in.split(":",2); //split input into name and value
-    components[0] = components[0].replace("{","").replace("\"", "").trim(); //clear brackets,quotes
+    components[0] = components[0].replace("{","").replace("\"", "").trim(); //clean str
 
     if (components.length < 2) { //empty JSON
-    	//creates empty object when given empty strings
-    	retJson = retJson.setString("","");
+    	retJson = retJson.setString("",""); //creates empty obj when given empty strs
 
-    //if no opening bracket, not a JSON-Lite object (i.e is String)
-    } else if (components[1].indexOf('{') == -1) {
-    	//clear String value of close bracket and quotes
-    	components[1] = components[1].replace("}","").replace("\"","").trim();
+    //====STEP 3: Add STRING or add OBJECT recursively====
+
+    } else if (components[1].indexOf('{') == -1) { //no opening bracket->not JSON-Lite object
+    	components[1] = components[1].replace("}","").replace("\"","").trim(); //clean str
     	retJson = retJson.setString(components[0], components[1]);
 
     } else { //value is an Object
-    	//clear Object value of extra close bracket at end
-    	components[1] = components[1].substring(0, components[1].lastIndexOf('}'));
+    	components[1] = components[1].substring(0, components[1].lastIndexOf('}')); //clean str
     	retJson = retJson.setObject(components[0], parse(components[1]));
     }
     return retJson;

@@ -22,6 +22,7 @@ final class TestMain {
   public static void main(String[] args) {
 
     final Tester tests = new Tester();
+    System.out.println("\nNote: Tests including \"invalid\" should fail with IOException.");
 
     tests.add("Empty Object", new Test() {
       @Override
@@ -51,6 +52,16 @@ final class TestMain {
      }
     });
 
+    tests.add("String (with inner-comma) Value", new Test() {
+      @Override
+      public void run(JSONFactory factory) throws Exception {
+        final JSONParser parser = factory.parser();
+        final JSON obj = parser.parse("{ \"name\":\"sam, doe\" }");
+
+        Asserts.isEqual("sam, doe", obj.getString("name"));
+     }
+    });
+
     tests.add("Object Value", new Test() {
       @Override
       public void run(JSONFactory factory) throws Exception {
@@ -66,7 +77,7 @@ final class TestMain {
       }
     });
 
-    tests.add("Object Value with String and Object Values", new Test() {
+    tests.add("Object Value (with String and Object Values)", new Test() {
       @Override
       public void run(JSONFactory factory) throws Exception {
         final JSONParser parser = factory.parser();
@@ -78,6 +89,22 @@ final class TestMain {
         Asserts.isEqual("doe", lastNameObj.getString("maternal"));
         Asserts.isEqual("smith", lastNameObj.getString("paternal"));
 
+      }
+    });
+
+    tests.add("String Value (with INVALID character escape)", new Test() {
+      @Override
+      public void run(JSONFactory factory) throws Exception {
+        final JSONParser parser = factory.parser();
+        final JSON obj = parser.parse("{ \"name\":\"s\\am doe\" }");
+      }
+    });
+
+    tests.add("String Value (with INVALID unescaped quote)", new Test() {
+      @Override
+      public void run(JSONFactory factory) throws Exception {
+        final JSONParser parser = factory.parser();
+        final JSON obj = parser.parse("{ \"name\": \"\"\" }");
       }
     });
 
