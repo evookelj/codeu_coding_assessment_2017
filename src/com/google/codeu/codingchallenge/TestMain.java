@@ -92,6 +92,21 @@ final class TestMain {
       }
     });
 
+    tests.add("Object Value (with String Value with VALID character escape)", new Test() {
+      @Override
+      public void run(JSONFactory factory) throws Exception {
+        final JSONParser parser = factory.parser();
+        final JSON obj = parser.parse("{ \"name\":{\"first\":\"\\nsam\", \"last\":\"\\tdoe\" } }");
+
+        final JSON nameObj = obj.getObject("name");
+
+        Asserts.isNotNull(nameObj);
+        Asserts.isEqual("\\nsam", nameObj.getString("first"));
+        Asserts.isEqual("\\tdoe", nameObj.getString("last"));
+
+      }
+    });
+
     tests.add("String Value (with INVALID character escape)", new Test() {
       @Override
       public void run(JSONFactory factory) throws Exception {
@@ -104,7 +119,7 @@ final class TestMain {
       @Override
       public void run(JSONFactory factory) throws Exception {
         final JSONParser parser = factory.parser();
-        final JSON obj = parser.parse("{ \"name\": he\"\"\"y }");
+        final JSON obj = parser.parse("{ \"name\": sa\"\"\"m }");
       }
     });
 
