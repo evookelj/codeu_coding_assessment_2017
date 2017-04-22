@@ -104,7 +104,7 @@ final class TestMain {
       @Override
       public void run(JSONFactory factory) throws Exception {
         final JSONParser parser = factory.parser();
-        final JSON obj = parser.parse("{ \"name\": \"\"\" }");
+        final JSON obj = parser.parse("{ \"name\": he\"\"\"y }");
       }
     });
 

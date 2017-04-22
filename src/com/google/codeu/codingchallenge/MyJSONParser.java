@@ -31,7 +31,10 @@ final class MyJSONParser implements JSONParser {
   @Override
   public JSON parse(String in) throws IOException {
 
-    //====STEP 0: Check for invalid str before running algo====
+    /*====STEP 0: Check for invalid str before running algo====
+        -invalid escape characters
+        -unescaped quotes
+    */
     for (int i=0; i<in.length()-1; i++) {
       if ((in.charAt(i)=='\\' && (!(in.charAt(i+1)=='t' || in.charAt(i+1)=='n'))) || //invalud escape chr
           (in.charAt(i)=='\"' && in.charAt(i+1)=='\"')) { //non-escaped quote
@@ -39,18 +42,16 @@ final class MyJSONParser implements JSONParser {
       }
     }
 
-    JSON retJson = new MyJSON();
   	//====STEP 1: determine whether object has multiple items====
+    JSON retJson = new MyJSON();
   	int comma_pos = in.indexOf(",");
   	int quote_ctr = 0;
   	int open_ctr = 0;
   	int close_ctr = 0;
   	if (comma_pos != -1) {
   		for (int i=0; i<in.substring(0,comma_pos).length(); i++) {
-  			if (in.charAt(i)=='\"') { //if char is quote
-  				//if (i>0 && in.charAt(i-1)!='\\') { //and isn't escaped before
-  					quote_ctr++; //add to quote counter
-  				//}
+  			if (in.charAt(i)=='\"') {
+  					quote_ctr++;
   			} else if (in.charAt(i)=='{') { 
   				open_ctr++; 
   			} else if (in.charAt(i)=='}') {
@@ -62,7 +63,7 @@ final class MyJSONParser implements JSONParser {
 	  	//if even open/close <=1, can be sure code isn't separating value
 	  	if (quote_ctr%2==0 && open_ctr-close_ctr<=1) {
 	  		String[] objs = in.split(",",2);
-	  		for (String obj: objs) { //for
+	  		for (String obj: objs) {
 
 	  			//add necessary missing brackets for parsing
 	  			if (in.indexOf("\\{")==-1 || close_ctr>open_ctr) { obj = "{" + obj; } 
@@ -98,14 +99,13 @@ final class MyJSONParser implements JSONParser {
     	retJson = retJson.setString("",""); //creates empty obj when given empty strs
 
     //====STEP 3: Add STRING or add OBJECT recursively====
-
     } else if (components[1].indexOf('{') == -1) { //no opening bracket->not JSON-Lite object
     	components[1] = components[1].replace("}","").replace("\"","").trim(); //clean str
     	retJson = retJson.setString(components[0], components[1]);
 
     } else { //value is an Object
     	components[1] = components[1].substring(0, components[1].lastIndexOf('}')); //clean str
-    	retJson = retJson.setObject(components[0], parse(components[1]));
+    	retJson = retJson.setObject(components[0], parse(components[1])); //recursively parse value obj
     }
     return retJson;
   }

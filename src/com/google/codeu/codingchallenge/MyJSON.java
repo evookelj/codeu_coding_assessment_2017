@@ -24,72 +24,56 @@ final class MyJSON implements JSON {
   @Override
   public JSON getObject(String name) {
 
-    if (jsonData==null) {
-      //if not yet initialized, do so
+    if (jsonData==null) { //if data not yet initialized, do so
       jsonData = new HashMap<String, Object>();
-      //and return null because empty map can't contain name
-      return null;
+      return null; //because empty map can't contain name
     }
 
-    //get value at given name
     Object val = jsonData.get(name);
 
-    if (val instanceof String) {
-      //not an OBJECT by that name, return NULL 
+    if (val instanceof String) { //not an OBJECT by that name
       return null;
-    } else {
-      //either the OBJ by that name, or NULL (key does not exists)
-      //typecasting safe because if not a String, must be JSON
-      return (JSON)val; 
+    } else { //either OBJ by name, or name DNE
+      return (JSON)val; //typecasting safe because if not a String, must be JSON
     }
   }
 
   @Override
   public JSON setObject(String name, JSON value) {
-
-    //if data not intiialized, do so here
-    if (jsonData==null) {
+ 
+    if (jsonData==null) { //if data not yet intiialized, do so here
       jsonData = new HashMap<String, Object>();
     }
 
-    //add name:value pair to data
-    jsonData.put(name,value);
+    jsonData.put(name,value); //add name:value pair to data
     return this;
   }
 
   @Override
   public String getString(String name) {
 
-    if (jsonData==null) {
-      //if not yet initialized, do so
+    if (jsonData==null) { //if not yet initialized, do so
       jsonData = new HashMap<String, Object>();
-      //and return null because empty map can't contain name
-      return null;
+      return null; //because empty map can't contain name
     }
 
-    //get value at given name
     Object val = jsonData.get(name);
 
-    if (val instanceof String) {
-      //name exists and is the name of a String
-      //typecasting safe because type checked by conditional
-      return (String)val;
+    if (val instanceof String) { //name exists, is name of String
+      return (String)val; //safe because type checked by conditional
     } else {
-      //name doesn't exist or is the name of an Object
-      return null; 
+      return null; //name doesn't exist or is the name of an Object
     }
   }
 
   @Override
   public JSON setString(String name, String value) {
-    //if data not intiialized, do so here
-    if (jsonData==null) {
+
+    if (jsonData==null) { //if data not intiialized, do so here
       jsonData = new HashMap<String, Object>();
     }
 
-    //check dummy case (if both are "" "" -> EMPTY JSON)
-    if (!(name.equals("") && value.equals(""))) {
-      //add name:value pair to data
+    if (!(name.equals("") && value.equals(""))) {//check dummy case,{"":""}->EMPTY JSON
       jsonData.put(name,value);
     }
 
@@ -99,7 +83,7 @@ final class MyJSON implements JSON {
   @Override
   public void getObjects(Collection<String> names) {
     for (String name: jsonData.keySet()) {
-      if (!(jsonData.get(name) instanceof String)) {
+      if (!(jsonData.get(name) instanceof String)) { //if not String
         names.add(name);
       }
     }
@@ -108,7 +92,7 @@ final class MyJSON implements JSON {
   @Override
   public void getStrings(Collection<String> names) {
     for (String name: jsonData.keySet()) {
-      if (jsonData.get(name) instanceof String) {
+      if (jsonData.get(name) instanceof String) { //if String
         names.add(name);
       }
     }
