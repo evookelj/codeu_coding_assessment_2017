@@ -15,40 +15,102 @@
 package com.google.codeu.codingchallenge;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 final class MyJSON implements JSON {
 
+  private HashMap<String, Object> jsonData;
+
   @Override
   public JSON getObject(String name) {
-    // TODO: implement this
-    return null;
+
+    if (jsonData==null) {
+      //if not yet initialized, do so
+      jsonData = new HashMap<String, Object>();
+      //and return null because empty map can't contain name
+      return null;
+    }
+
+    //get value at given name
+    Object val = jsonData.get(name);
+
+    if (val instanceof String) {
+      //not an OBJECT by that name, return NULL 
+      return null;
+    } else {
+      //either the OBJ by that name, or NULL (key does not exists)
+      //typecasting safe because if not a String, must be JSON
+      return (JSON)val; 
+    }
   }
 
   @Override
   public JSON setObject(String name, JSON value) {
-    // TODO: implement this
+
+    //if data not intiialized, do so here
+    if (jsonData==null) {
+      jsonData = new HashMap<String, Object>();
+    }
+
+    //add name:value pair to data
+    jsonData.put(name,value);
     return this;
   }
 
   @Override
   public String getString(String name) {
-    // TODO: implement this
-    return null;
+
+    if (jsonData==null) {
+      //if not yet initialized, do so
+      jsonData = new HashMap<String, Object>();
+      //and return null because empty map can't contain name
+      return null;
+    }
+
+    //get value at given name
+    Object val = jsonData.get(name);
+
+    if (val instanceof String) {
+      //name exists and is the name of a String
+      //typecasting safe because type checked by conditional
+      return (String)val;
+    } else {
+      //name doesn't exist or is the name of an Object
+      return null; 
+    }
   }
 
   @Override
   public JSON setString(String name, String value) {
-    // TODO: implement this
+    //if data not intiialized, do so here
+    if (jsonData==null) {
+      jsonData = new HashMap<String, Object>();
+    }
+
+    //check dummy case (if both are "" "" -> EMPTY JSON)
+    if (!(name.equals("") && value.equals(""))) {
+      //add name:value pair to data
+      jsonData.put(name,value);
+    }
+
     return this;
   }
 
   @Override
   public void getObjects(Collection<String> names) {
-    // TODO: implement this
+    for (String name: jsonData.keySet()) {
+      if (!(jsonData.get(name) instanceof String)) {
+        names.add(name);
+      }
+    }
   }
 
   @Override
   public void getStrings(Collection<String> names) {
-    // TODO: implement this
+    for (String name: jsonData.keySet()) {
+      if (jsonData.get(name) instanceof String) {
+        names.add(name);
+      }
+    }
   }
 }
