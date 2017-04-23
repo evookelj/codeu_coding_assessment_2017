@@ -36,8 +36,7 @@ final class MyJSONParser implements JSONParser {
         -unescaped quotes
     */
     for (int i=0; i<in.length()-1; i++) {
-      if ((in.charAt(i)=='\\' && (!(in.charAt(i+1)=='t' || in.charAt(i+1)=='n'))) || //invalud escape chr
-          (in.charAt(i)=='\"' && in.charAt(i+1)=='\"')) { //non-escaped quote
+      if (in.charAt(i)=='\\' && (!(in.charAt(i+1)=='t' || in.charAt(i+1)=='n' || in.charAt(i+1)=='\"'))) { //invalud escape chr
         throw new IOException();
       }
     }
@@ -53,10 +52,12 @@ final class MyJSONParser implements JSONParser {
   			if (in.charAt(i)=='\"') {
   					quote_ctr++;
   			} else if (in.charAt(i)=='{') { 
-  				open_ctr++; 
+  				  open_ctr++; 
   			} else if (in.charAt(i)=='}') {
-  				close_ctr++;
-  			}
+  				  close_ctr++;
+  			} else if (i>0 && in.charAt(i)=='\"' && in.charAt(i+1)=='\\') {
+            quote_ctr++; //don't count esacped quote
+        }
   		}
 
 	  	//if even # quotes, comma is being used to separate 
@@ -93,20 +94,44 @@ final class MyJSONParser implements JSONParser {
 
     //====STEP 2: Separate name and value====
     String[] components = in.split(":",2); //split input into name and value
-    components[0] = components[0].replace("{","").replace("\"", "").trim(); //clean str
+    components[0] = components[0].replace("{","").replaceFirst("\"", "").trim(); //clean str
+    int end_quote_pos = components[0].lastIndexOf('\"');
+    if (end_quote_pos>=0) {
+      components[0] = components[0].substring(0,end_quote_pos)+components[0].substring(end_quote_pos+1);
+    }
+
+    //check components[0] for invalid unescaped quote
+    for (int i=0; i<components[0].length()-1; i++) {
+      if (components[0].charAt(i+1)=='\"' && components[0].charAt(i)!='\\') {
+        throw new IOException();
+      }
+    }
 
     if (components.length < 2) { //empty JSON
     	retJson = retJson.setString("",""); //creates empty obj when given empty strs
 
     //====STEP 3: Add STRING or add OBJECT recursively====
     } else if (components[1].indexOf('{') == -1) { //no opening bracket->not JSON-Lite object
-    	components[1] = components[1].replace("}","").replace("\"","").trim(); //clean str
+
+    	components[1] = components[1].replace("}","").replaceFirst("\"","").trim(); //clean str
+      end_quote_pos = components[1].lastIndexOf('\"');
+      if (end_quote_pos>=0) {
+        components[1] = components[1].substring(0,end_quote_pos)+components[1].substring(end_quote_pos+1);
+      };
+      //check components[1] for invalid unescaped quote
+      for (int i=0; i<components[1].length()-1; i++) {
+        if (components[1].charAt(i+1)=='\"' && components[1].charAt(i)!='\\') {
+          throw new IOException();
+        }
+      }
+
     	retJson = retJson.setString(components[0], components[1]);
 
     } else { //value is an Object
     	components[1] = components[1].substring(0, components[1].lastIndexOf('}')); //clean str
     	retJson = retJson.setObject(components[0], parse(components[1])); //recursively parse value obj
     }
+
     return retJson;
   }
 }

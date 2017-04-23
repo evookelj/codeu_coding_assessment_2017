@@ -107,6 +107,16 @@ final class TestMain {
       }
     });
 
+    tests.add("String Value (with VALID escaped quote)", new Test() {
+      @Override
+      public void run(JSONFactory factory) throws Exception {
+        final JSONParser parser = factory.parser();
+        final JSON obj = parser.parse("{ \"name\": \"\\\"sam\" }");
+
+        Asserts.isEqual("\\\"sam", obj.getString("name"));
+    }
+  });
+
     tests.add("String Value (with INVALID character escape)", new Test() {
       @Override
       public void run(JSONFactory factory) throws Exception {
@@ -115,7 +125,7 @@ final class TestMain {
       }
     });
 
-    tests.add("String Value (with INVALID unescaped quote)", new Test() {
+  tests.add("String Value (with INVALID unescaped quote)", new Test() {
       @Override
       public void run(JSONFactory factory) throws Exception {
         final JSONParser parser = factory.parser();
