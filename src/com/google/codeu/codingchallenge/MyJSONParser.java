@@ -118,6 +118,7 @@ final class MyJSONParser implements JSONParser {
       if (end_quote_pos>=0) {
         components[1] = components[1].substring(0,end_quote_pos)+components[1].substring(end_quote_pos+1);
       };
+      
       //check components[1] for invalid unescaped quote
       for (int i=0; i<components[1].length()-1; i++) {
         if (components[1].charAt(i+1)=='\"' && components[1].charAt(i)!='\\') {
